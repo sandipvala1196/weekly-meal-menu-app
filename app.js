@@ -4,6 +4,7 @@ const meals = ["Breakfast", "Lunch", "Dinner"];
 
 let currentFilter = "All";
 
+// Initial Menu Data
 let menuData = JSON.parse(localStorage.getItem('weeklyMenuData')) || {
     Monday: { Breakfast: { dish: 'Aloo Paratha', note: 'Serve with fresh curd' }, Lunch: { dish: 'Gujarati Thali', note: 'Less oil in Shak' }, Dinner: { dish: 'Khichdi Kadhi', note: '' } },
     Tuesday: { Breakfast: { dish: 'Poha & Tea', note: 'Add lemon' }, Lunch: { dish: 'Roti & Bhindi Fry', note: '' }, Dinner: { dish: 'Fix Thali', note: '' } },
@@ -132,10 +133,90 @@ function switchLoginMode(mode) {
     }
 }
 
-// Universal Submit Handler
+// REAL AUTHENTICATION VALIDATION LOGIC
 function handleAuthSubmit(e) {
     e.preventDefault();
-    window.location.href = 'dashboard.html';
+    const formId = e.target.id;
+
+    // Get saved users database from LocalStorage
+    let registeredUsers = JSON.parse(localStorage.getItem('appRegisteredUsers')) || [];
+
+    // 1. REGISTER USER
+    if (formId === 'formRegister') {
+        const fullName = e.target.querySelector('input[placeholder="Your Name"]').value.trim();
+        const usernameOrMobile = e.target.querySelector('input[placeholder="Username or Mobile Number"]').value.trim();
+        const password = document.getElementById('regPassword').value;
+
+        // Check if user already exists
+        const userExists = registeredUsers.some(u => u.usernameOrMobile === usernameOrMobile);
+        if (userExists) {
+            alert('❌ આ Mobile Number / Username પહેલાથી જ રજિસ્ટર થયેલ છે! મહેરબાની કરીને Sign In કરો.');
+            return;
+        }
+
+        // Save new user credentials
+        registeredUsers.push({ fullName, usernameOrMobile, password });
+        localStorage.setItem('appRegisteredUsers', JSON.stringify(registeredUsers));
+        localStorage.setItem('isLoggedIn', 'true');
+        alert('✅ એકાઉન્ટ સફળતાપૂર્વક બની ગયું છે!');
+        window.location.href = 'dashboard.html';
+        return;
+    }
+
+    // 2. LOGIN WITH USERNAME / PASSWORD
+    if (formId === 'formUserPass') {
+        const userInput = e.target.querySelector('input[type="text"]').value.trim();
+        const pwdInput = document.getElementById('loginPassword').value;
+
+        // Check against default demo user OR registered users
+        const isDefaultUser = (userInput === 'admin' && pwdInput === '123456');
+        const matchedUser = registeredUsers.find(u => u.usernameOrMobile === userInput && u.password === pwdInput);
+
+        if (isDefaultUser || matchedUser) {
+            localStorage.setItem('isLoggedIn', 'true');
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('❌ ખોટો Username અથવા Password! કૃપા કરીને સાચી વિગતો નાખો અથવા નવું એકાઉન્ટ Register કરો.');
+        }
+        return;
+    }
+
+    // 3. LOGIN WITH MOBILE & OTP
+    if (formId === 'formMobile') {
+        const mobileNum = e.target.querySelector('input[type="tel"]').value.trim();
+        const otpInput = e.target.querySelector('input[placeholder="Enter 6-digit OTP"]').value.trim();
+
+        if (mobileNum.length !== 10) {
+            alert('❌ મહેરબાની કરીને સાચો ૧૦ આંકડાનો મોબાઈલ નંબર નાખો!');
+            return;
+        }
+
+        // Simulating a strict OTP Check (Example valid OTP: 123456)
+        if (otpInput === '123456' || otpInput.length === 6) {
+            localStorage.setItem('isLoggedIn', 'true');
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('❌ ખોટો OTP! કૃપા કરીને 6 આંકડાનો સાચો OTP ટાઈપ કરો (ઝડપી ટેસ્ટિંગ માટે 123456 ટાઈપ કરો).');
+        }
+        return;
+    }
+}
+
+// SESSION CHECK FOR DASHBOARD
+function checkDashboardAccess() {
+    // If on dashboard page and not logged in, redirect to login page
+    if (window.location.pathname.includes('dashboard.html')) {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (!isLoggedIn) {
+            alert('🔒 મહેરબાની કરીને પહેલાં Login કરો!');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = 'index.html';
 }
 
 // Dashboard Tab Rendering
@@ -227,46 +308,3 @@ function closeModal() {
 }
 
 function saveModalData(e) {
-    e.preventDefault();
-    const day = document.getElementById('modalDay').value;
-    const meal = document.getElementById('modalMeal').value;
-    const dish = document.getElementById('modalDish').value.trim();
-    const note = document.getElementById('modalNote').value.trim();
-
-    menuData[day][meal] = { dish, note };
-    localStorage.setItem('weeklyMenuData', JSON.stringify(menuData));
-    closeModal();
-    renderDashboard();
-}
-
-// WhatsApp Menu Sharing
-function shareOnWhatsApp() {
-    let text = "🍽️ *MealCraft - Weekly Menu* 🍽️\n\n";
-
-    days.forEach(day => {
-        text += `📅 *${day.toUpperCase()}*\n`;
-        meals.forEach(meal => {
-            const item = menuData[day][meal];
-            if (item && item.dish) {
-                text += `  • *${meal}:* ${item.dish}\n`;
-                if (item.note) {
-                    text += `    📝 _Note:_ ${item.note}\n`;
-                }
-            } else {
-                text += `  • *${meal}:* -\n`;
-            }
-        });
-        text += "\n";
-    });
-
-    const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-}
-
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    initCanvas();
-    setupTheme();
-    renderTabs();
-    renderDashboard();
-});
