@@ -271,29 +271,42 @@ function saveModalData(e) {
     renderDashboard();
 }
 
+// Enhanced Designer WhatsApp Menu Sharing
 function shareOnWhatsApp() {
-    let text = "🍽️ *MealCraft - Weekly Menu* 🍽️\n\n";
+    let text = "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "🍽️  *MEALCRAFT - WEEKLY MENU*  🍽️\n";
+    text += "━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
     days.forEach(day => {
-        text += `📅 *${day.toUpperCase()}*\n`;
+        text += `📌 *${day.toUpperCase()}*\n`;
+        text += "───────────────\n";
+        
         meals.forEach(meal => {
             const item = menuData[day][meal];
-            if (item && item.dish) {
-                text += `  • *${meal}:* ${item.dish}\n`;
-                if (item.note) {
-                    text += `    📝 _Note:_ ${item.note}\n`;
+            let mealIcon = "🥣";
+            if (meal === "Breakfast") mealIcon = "🥞";
+            if (meal === "Lunch") mealIcon = "🍛";
+            if (meal === "Dinner") mealIcon = "🍲";
+
+            if (item && item.dish && item.dish.trim() !== '') {
+                text += `${mealIcon} *${meal}:* ${item.dish}\n`;
+                if (item.note && item.note.trim() !== '') {
+                    text += `   └ 📝 _${item.note}_\n`;
                 }
             } else {
-                text += `  • *${meal}:* -\n`;
+                text += `${mealIcon} *${meal}:* _Not Planned_\n`;
             }
         });
         text += "\n";
     });
 
+    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "✨ *Created with MealCraft App* ✨\n";
+    text += "━━━━━━━━━━━━━━━━━━━━━━";
+
     const encodedText = encodeURIComponent(text);
     window.open(`https://wa.me/?text=${encodedText}`, '_blank');
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     checkDashboardAccess();
     initCanvas();
