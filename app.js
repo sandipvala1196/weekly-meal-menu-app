@@ -12,7 +12,7 @@ let menuData = JSON.parse(localStorage.getItem('weeklyMenuData')) || {
     Friday: { Breakfast: { dish: 'Sandwich', note: 'Toasted' }, Lunch: { dish: 'Chole Bhature', note: '' }, Dinner: { dish: 'Pizza / Pasta', note: 'Weekend special' } }
 };
 
-// Canvas Animation
+// Canvas Floating Icons
 function initCanvas() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
@@ -52,7 +52,7 @@ function initCanvas() {
     animate();
 }
 
-// Theme Toggle
+// Dark / Light Theme
 function setupTheme() {
     const toggleBtn = document.getElementById('themeToggle');
     if (!toggleBtn) return;
@@ -70,7 +70,7 @@ function setupTheme() {
     }
 }
 
-// Password Eye Toggle
+// Password Visibility
 function togglePassword(inputId, eyeId) {
     const pwd = document.getElementById(inputId);
     const icon = document.getElementById(eyeId);
@@ -84,14 +84,14 @@ function togglePassword(inputId, eyeId) {
     }
 }
 
-// Switch Auth Tabs
+// Auth Tab Switching
 function switchAuthTab(tab) {
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
     const formLogin = document.getElementById('formLogin');
     const formRegister = document.getElementById('formRegister');
 
-    if (!tabLogin || !tabRegister) return;
+    if (!tabLogin || !tabRegister || !formLogin || !formRegister) return;
 
     if (tab === 'login') {
         tabLogin.className = "flex-1 py-2 rounded-lg text-xs font-semibold transition bg-amber-500 text-white shadow";
@@ -106,57 +106,73 @@ function switchAuthTab(tab) {
     }
 }
 
-// Form Submit Handling (Strict Register & Login Check)
-function handleAuthSubmit(e) {
+// REGISTER USER LOGIC
+function handleRegister(e) {
     e.preventDefault();
-    const formId = e.target.id;
-    let registeredUsers = JSON.parse(localStorage.getItem('mealCraftUsers')) || [];
+    const name = document.getElementById('regName').value.trim();
+    const user = document.getElementById('regUser').value.trim();
+    const pass = document.getElementById('regPassword').value.trim();
 
-    if (formId === 'formRegister') {
-        const name = document.getElementById('regName').value.trim();
-        const user = document.getElementById('regUser').value.trim();
-        const pass = document.getElementById('regPassword').value.trim();
+    if (!name || !user || !pass) {
+        alert("કૃપા કરીને બધી માહિતી સાચી ભરો!");
+        return;
+    }
 
-        const exists = registeredUsers.find(u => u.user === user);
-        if (exists) {
-            alert('Aaa username pehla thi j register che! Krupa karine Sign In karo.');
-            return;
-        }
+    let users = JSON.parse(localStorage.getItem('mealCraftUsers')) || [];
 
-        registeredUsers.push({ name, user, pass });
-        localStorage.setItem('mealCraftUsers', JSON.stringify(registeredUsers));
-        alert('Account successful bani gayu che! Have tame Sign In karo.');
+    // Check if user already exists
+    const exists = users.find(u => u.user.toLowerCase() === user.toLowerCase());
+    if (exists) {
+        alert('આ Username પહેલાથી રજિસ્ટર થયેલ છે! કૃપા કરીને Sign In કરો.');
         switchAuthTab('login');
         return;
     }
 
-    if (formId === 'formLogin') {
-        const user = document.getElementById('loginUser').value.trim();
-        const pass = document.getElementById('loginPassword').value.trim();
+    // Save new user
+    users.push({ name, user, pass });
+    localStorage.setItem('mealCraftUsers', JSON.stringify(users));
 
-        const validUser = registeredUsers.find(u => u.user === user && u.pass === pass);
+    alert('✅ રજિસ્ટ્રેશન સફળતાપૂર્વક થઈ ગયું છે! હવે Sign In કરો.');
 
-        if (validUser) {
-            localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = 'dashboard.html';
-        } else {
-            alert('Khoto Username athwa Password! Pehla Register karo.');
-        }
+    // Clear form & switch to login
+    document.getElementById('regName').value = '';
+    document.getElementById('regUser').value = '';
+    document.getElementById('regPassword').value = '';
+    switchAuthTab('login');
+}
+
+// LOGIN USER LOGIC
+function handleLogin(e) {
+    e.preventDefault();
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+
+    let users = JSON.parse(localStorage.getItem('mealCraftUsers')) || [];
+
+    // Match registered user
+    const validUser = users.find(u => u.user.toLowerCase() === user.toLowerCase() && u.pass === pass);
+
+    if (validUser) {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', validUser.name);
+        window.location.href = 'dashboard.html';
+    } else {
+        alert('❌ ખોટો Username અથવા Password! કૃપા કરીને સાચો લોગિન દાવો અથવા પેહલા Register કરો.');
     }
 }
 
-// Dashboard Access Check
+// DASHBOARD ACCESS PROTECTION
 function checkDashboardAccess() {
     if (window.location.pathname.includes('dashboard.html')) {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn) {
-            alert('Pehla Login karo!');
+            alert('🔒 કૃપા કરીને પહેલા Login કરો!');
             window.location.href = 'index.html';
         }
     }
 }
 
-// Dashboard Rendering Functions
+// DASHBOARD RENDER LOGIC
 function renderTabs() {
     const tabContainer = document.getElementById('dayTabs');
     if (!tabContainer) return;
