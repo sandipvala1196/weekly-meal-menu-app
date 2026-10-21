@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MealCraft - Weekly Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#f97316', 600: '#ea580c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen relative font-sans">
+
+    <!-- Background Layer -->
+    <div class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-15 -z-20"></div>
+    <div class="fixed inset-0 bg-gradient-to-tr from-slate-950 via-slate-900/95 to-slate-950/90 -z-10"></div>
+    <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none -z-5"></canvas>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 glass-card border-b border-white/10 px-4 py-3.5">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">MealCraft</h1>
+                    <p class="text-[11px] text-slate-400">Weekly Food Planner</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="shareOnWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span class="hidden sm:inline">Share Menu</span>
+                </button>
+                <button id="themeToggle" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-amber-400 transition">
+                    <i class="fa-solid fa-moon text-sm"></i>
+                </button>
+                <a href="index.html" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-rose-400 transition" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 pb-24">
+        
+        <!-- Day Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="dayTabs">
+            <!-- Rendered JS -->
+        </div>
+
+        <!-- Weekly Menu Grid -->
+        <div id="weeklyGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Rendered Dynamic Menu Cards -->
+        </div>
+
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl border border-white/10 w-full max-w-md p-6 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                <h3 class="font-bold text-lg text-amber-400" id="modalTitle">Edit Item</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="editForm" onsubmit="saveModalData(event)" class="space-y-4">
+                <input type="hidden" id="modalDay">
+                <input type="hidden" id="modalMeal">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Dish Name</label>
+                    <input type="text" id="modalDish" required placeholder="e.g. Aloo Paratha / Dal Makhani" class="w-full bg-slate-900/60 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Special Note / Recipe Instructions</label>
+                    <textarea id="modalNote" rows="3" placeholder="e.g. Keep it less spicy, serve with curd..." class="w-full bg-slate-900/60 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-white/5">Cancel</button>
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-amber-500/20">Save Menu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
