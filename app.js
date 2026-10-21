@@ -4,7 +4,6 @@ const meals = ["Breakfast", "Lunch", "Dinner"];
 
 let currentFilter = "All";
 
-// Initial Menu Data
 let menuData = JSON.parse(localStorage.getItem('weeklyMenuData')) || {
     Monday: { Breakfast: { dish: 'Aloo Paratha', note: 'Serve with fresh curd' }, Lunch: { dish: 'Gujarati Thali', note: 'Less oil in Shak' }, Dinner: { dish: 'Khichdi Kadhi', note: '' } },
     Tuesday: { Breakfast: { dish: 'Poha & Tea', note: 'Add lemon' }, Lunch: { dish: 'Roti & Bhindi Fry', note: '' }, Dinner: { dish: 'Fix Thali', note: '' } },
@@ -13,7 +12,7 @@ let menuData = JSON.parse(localStorage.getItem('weeklyMenuData')) || {
     Friday: { Breakfast: { dish: 'Sandwich', note: 'Toasted' }, Lunch: { dish: 'Chole Bhature', note: '' }, Dinner: { dish: 'Pizza / Pasta', note: 'Weekend special' } }
 };
 
-// Canvas Floating Particles Animation
+// Canvas Animation
 function initCanvas() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
@@ -53,7 +52,7 @@ function initCanvas() {
     animate();
 }
 
-// Dark/Light Theme Toggle
+// Theme Toggle
 function setupTheme() {
     const toggleBtn = document.getElementById('themeToggle');
     if (!toggleBtn) return;
@@ -85,167 +84,79 @@ function togglePassword(inputId, eyeId) {
     }
 }
 
-// Auth Tab Switching (Sign In vs Register)
+// Switch Auth Tabs
 function switchAuthTab(tab) {
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
-    const formUserPass = document.getElementById('formUserPass');
-    const formMobile = document.getElementById('formMobile');
+    const formLogin = document.getElementById('formLogin');
     const formRegister = document.getElementById('formRegister');
-    const modeSwitchContainer = document.getElementById('modeSwitchContainer');
 
     if (!tabLogin || !tabRegister) return;
 
     if (tab === 'login') {
         tabLogin.className = "flex-1 py-2 rounded-lg text-xs font-semibold transition bg-amber-500 text-white shadow";
         tabRegister.className = "flex-1 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
-        if (modeSwitchContainer) modeSwitchContainer.classList.remove('hidden');
-        switchLoginMode('userpass');
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
     } else {
         tabRegister.className = "flex-1 py-2 rounded-lg text-xs font-semibold transition bg-amber-500 text-white shadow";
         tabLogin.className = "flex-1 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
-        if (modeSwitchContainer) modeSwitchContainer.classList.add('hidden');
-        if (formUserPass) formUserPass.classList.add('hidden');
-        if (formMobile) formMobile.classList.add('hidden');
-        if (formRegister) formRegister.classList.remove('hidden');
+        formRegister.classList.remove('hidden');
+        formLogin.classList.add('hidden');
     }
 }
 
-// Login Mode Switching (Username/Password vs Mobile Number OTP)
-function switchLoginMode(mode) {
-    const modeUserPass = document.getElementById('modeUserPass');
-    const modeMobile = document.getElementById('modeMobile');
-    const formUserPass = document.getElementById('formUserPass');
-    const formMobile = document.getElementById('formMobile');
-
-    if (!modeUserPass || !modeMobile) return;
-
-    if (mode === 'userpass') {
-        modeUserPass.className = "text-amber-400 border-b-2 border-amber-400 pb-1 font-semibold";
-        modeMobile.className = "text-slate-400 hover:text-slate-200 pb-1";
-        if (formUserPass) formUserPass.classList.remove('hidden');
-        if (formMobile) formMobile.classList.add('hidden');
-    } else {
-        modeMobile.className = "text-amber-400 border-b-2 border-amber-400 pb-1 font-semibold";
-        modeUserPass.className = "text-slate-400 hover:text-slate-200 pb-1";
-        if (formMobile) formMobile.classList.remove('hidden');
-        if (formUserPass) formUserPass.classList.add('hidden');
-    }
-}
-
-// STRICT AUTHENTICATION VALIDATION LOGIC
+// Form Submit Handling (Strict Register & Login Check)
 function handleAuthSubmit(e) {
     e.preventDefault();
     const formId = e.target.id;
+    let registeredUsers = JSON.parse(localStorage.getItem('mealCraftUsers')) || [];
 
-    // Fetch saved users from LocalStorage
-    let registeredUsers = JSON.parse(localStorage.getItem('appRegisteredUsers')) || [];
-
-    // 1. REGISTER NEW USER
     if (formId === 'formRegister') {
-        const fullNameInput = e.target.querySelector('input[placeholder="Your Name"]');
-        const userInput = e.target.querySelector('input[placeholder="Username or Mobile Number"]');
-        const passInput = document.getElementById('regPassword');
+        const name = document.getElementById('regName').value.trim();
+        const user = document.getElementById('regUser').value.trim();
+        const pass = document.getElementById('regPassword').value.trim();
 
-        if (!fullNameInput || !userInput || !passInput) return;
-
-        const fullName = fullNameInput.value.trim();
-        const usernameOrMobile = userInput.value.trim();
-        const password = passInput.value.trim();
-
-        if (!usernameOrMobile || !password) {
-            alert('❌ મહેરબાની કરીને બધી માહિતી સાચી ભરો!');
+        const exists = registeredUsers.find(u => u.user === user);
+        if (exists) {
+            alert('Aaa username pehla thi j register che! Krupa karine Sign In karo.');
             return;
         }
 
-        // Check if username/mobile already exists
-        const userExists = registeredUsers.some(u => u.usernameOrMobile === usernameOrMobile);
-        if (userExists) {
-            alert('❌ આ Mobile Number / Username પહેલાથી જ રજિસ્ટર થયેલ છે! મહેરબાની કરીને Sign In કરો.');
-            return;
-        }
-
-        // Save new user
-        registeredUsers.push({ fullName, usernameOrMobile, password });
-        localStorage.setItem('appRegisteredUsers', JSON.stringify(registeredUsers));
-        localStorage.setItem('isLoggedIn', 'true');
-        alert('✅ એકાઉન્ટ સફળતાપૂર્વક બની ગયું છે!');
-        window.location.href = 'dashboard.html';
+        registeredUsers.push({ name, user, pass });
+        localStorage.setItem('mealCraftUsers', JSON.stringify(registeredUsers));
+        alert('Account successful bani gayu che! Have tame Sign In karo.');
+        switchAuthTab('login');
         return;
     }
 
-    // 2. LOGIN WITH USERNAME / PASSWORD
-    if (formId === 'formUserPass') {
-        const userInputField = e.target.querySelector('input[type="text"]');
-        const pwdInputField = document.getElementById('loginPassword');
+    if (formId === 'formLogin') {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPassword').value.trim();
 
-        if (!userInputField || !pwdInputField) return;
+        const validUser = registeredUsers.find(u => u.user === user && u.pass === pass);
 
-        const userInput = userInputField.value.trim();
-        const pwdInput = pwdInputField.value.trim();
-
-        // Check ONLY against registered users in LocalStorage
-        const matchedUser = registeredUsers.find(u => u.usernameOrMobile === userInput && u.password === pwdInput);
-
-        if (matchedUser) {
+        if (validUser) {
             localStorage.setItem('isLoggedIn', 'true');
             window.location.href = 'dashboard.html';
         } else {
-            alert('❌ ખોટો Username અથવા Password! કૃપા કરીને પહેલા "Register" ટેબમાં જઈને એકાઉન્ટ બનાવો.');
+            alert('Khoto Username athwa Password! Pehla Register karo.');
         }
-        return;
-    }
-
-    // 3. LOGIN WITH MOBILE & OTP
-    if (formId === 'formMobile') {
-        const mobileInput = e.target.querySelector('input[type="tel"]');
-        const otpInput = e.target.querySelector('input[placeholder="Enter 6-digit OTP"]');
-
-        if (!mobileInput || !otpInput) return;
-
-        const mobileNum = mobileInput.value.trim();
-        const otpVal = otpInput.value.trim();
-
-        if (mobileNum.length !== 10) {
-            alert('❌ મહેરબાની કરીને સાચો ૧૦ આંકડાનો મોબાઈલ નંબર નાખો!');
-            return;
-        }
-
-        // Check if mobile number is registered
-        const isRegistered = registeredUsers.some(u => u.usernameOrMobile === mobileNum);
-
-        if (otpVal === '123456') {
-            if (!isRegistered) {
-                // Auto register on OTP verification
-                registeredUsers.push({ fullName: 'Mobile User', usernameOrMobile: mobileNum, password: 'OTPVerified' });
-                localStorage.setItem('appRegisteredUsers', JSON.stringify(registeredUsers));
-            }
-            localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = 'dashboard.html';
-        } else {
-            alert('❌ ખોટો OTP! ટેસ્ટિંગ માટે OTP માં 123456 ટાઈપ કરો.');
-        }
-        return;
     }
 }
 
-// SESSION CHECK FOR DASHBOARD
+// Dashboard Access Check
 function checkDashboardAccess() {
     if (window.location.pathname.includes('dashboard.html')) {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (!isLoggedIn) {
-            alert('🔒 મહેરબાની કરીને પહેલાં Login કરો!');
+            alert('Pehla Login karo!');
             window.location.href = 'index.html';
         }
     }
 }
 
-function handleLogout() {
-    localStorage.removeItem('isLoggedIn');
-    window.location.href = 'index.html';
-}
-
-// Dashboard Tab Rendering
+// Dashboard Rendering Functions
 function renderTabs() {
     const tabContainer = document.getElementById('dayTabs');
     if (!tabContainer) return;
@@ -264,7 +175,6 @@ function filterDay(day) {
     renderDashboard();
 }
 
-// Dashboard Grid Rendering
 function renderDashboard() {
     const grid = document.getElementById('weeklyGrid');
     if (!grid) return;
@@ -285,7 +195,7 @@ function renderDashboard() {
                     const item = menuData[day][meal];
                     const hasDish = item && item.dish.trim() !== '';
                     return `
-                        <div class="bg-slate-900/40 dark:bg-slate-900/40 rounded-xl p-3 border border-white/5 relative group hover:border-amber-500/30 transition">
+                        <div class="bg-slate-900/40 rounded-xl p-3 border border-white/5 relative group hover:border-amber-500/30 transition">
                             <div class="flex justify-between items-start mb-1">
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${meal}</span>
                                 <button onclick="openEditModal('${day}', '${meal}')" class="text-slate-400 hover:text-amber-400 text-xs transition">
@@ -309,7 +219,6 @@ function renderDashboard() {
     `).join('');
 }
 
-// Modal Handlers
 function openEditModal(day, meal) {
     const modalDay = document.getElementById('modalDay');
     const modalMeal = document.getElementById('modalMeal');
@@ -346,6 +255,33 @@ function saveModalData(e) {
     renderDashboard();
 }
 
-// WhatsApp Menu Sharing
 function shareOnWhatsApp() {
-    let text = "🍽️ *MealCraft - Weekly Menu
+    let text = "🍽️ *MealCraft - Weekly Menu* 🍽️\n\n";
+
+    days.forEach(day => {
+        text += `📅 *${day.toUpperCase()}*\n`;
+        meals.forEach(meal => {
+            const item = menuData[day][meal];
+            if (item && item.dish) {
+                text += `  • *${meal}:* ${item.dish}\n`;
+                if (item.note) {
+                    text += `    📝 _Note:_ ${item.note}\n`;
+                }
+            } else {
+                text += `  • *${meal}:* -\n`;
+            }
+        });
+        text += "\n";
+    });
+
+    const encodedText = encodeURIComponent(text);
+    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkDashboardAccess();
+    initCanvas();
+    setupTheme();
+    renderTabs();
+    renderDashboard();
+});
