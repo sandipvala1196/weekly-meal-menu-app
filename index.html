@@ -22,22 +22,18 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden font-sans">
 
-    <!-- Background Image Overlay -->
+    <!-- Background Overlay -->
     <div class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-25 -z-20"></div>
     <div class="fixed inset-0 bg-gradient-to-tr from-slate-950 via-slate-900/90 to-slate-950/80 -z-10"></div>
 
-    <!-- Canvas Animation -->
     <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none -z-5"></canvas>
 
-    <!-- Theme Toggle -->
     <button id="themeToggle" class="fixed top-5 right-5 w-11 h-11 rounded-full glass-card flex items-center justify-center text-slate-200 hover:text-amber-400 transition-all z-50">
         <i class="fa-solid fa-moon text-lg"></i>
     </button>
 
-    <!-- Auth Main Card -->
     <main class="w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl relative border border-white/10 my-8">
         
-        <!-- App Header -->
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-lg mb-3">
                 <i class="fa-solid fa-utensils text-2xl"></i>
@@ -46,18 +42,18 @@
             <p class="text-xs text-slate-400 mt-1">Weekly Food Planner</p>
         </div>
 
-        <!-- Auth Tabs (Login / Register) -->
+        <!-- Auth Tabs -->
         <div class="flex bg-slate-900/60 p-1 rounded-xl mb-6 border border-white/5">
-            <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg text-xs font-semibold transition bg-amber-500 text-white shadow">
+            <button id="tabLogin" type="button" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg text-xs font-semibold transition bg-amber-500 text-white shadow">
                 Sign In
             </button>
-            <button id="tabRegister" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            <button id="tabRegister" type="button" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
                 Register
             </button>
         </div>
 
-        <!-- 1. LOGIN FORM (Username & Password) -->
-        <form id="formLogin" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <!-- 1. LOGIN FORM -->
+        <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Username / Email</label>
                 <div class="relative">
@@ -84,7 +80,7 @@
         </form>
 
         <!-- 2. REGISTER FORM -->
-        <form id="formRegister" onsubmit="handleAuthSubmit(event)" class="space-y-4 hidden">
+        <form id="formRegister" onsubmit="handleRegister(event)" class="space-y-4 hidden">
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
                 <div class="relative">
