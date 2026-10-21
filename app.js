@@ -142,6 +142,7 @@ function handleRegister(e) {
 }
 
 // LOGIN USER LOGIC
+// LOGIN USER LOGIC (With Default Testing Number Support)
 function handleLogin(e) {
     e.preventDefault();
     const user = document.getElementById('loginUser').value.trim();
@@ -149,15 +150,16 @@ function handleLogin(e) {
 
     let users = JSON.parse(localStorage.getItem('mealCraftUsers')) || [];
 
-    // Match registered user
+    // Check if login matches testing number OR registered users
+    const isTestUser = (user === '7096856294' && pass === '123456'); // ટેસ્ટિંગ માટે પાસવર્ડ: 123456
     const validUser = users.find(u => u.user.toLowerCase() === user.toLowerCase() && u.pass === pass);
 
-    if (validUser) {
+    if (isTestUser || validUser) {
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', validUser.name);
+        localStorage.setItem('currentUser', isTestUser ? 'Sandip Vala' : validUser.name);
         window.location.href = 'dashboard.html';
     } else {
-        alert('❌ ખોટો Username અથવા Password! કૃપા કરીને સાચો લોગિન દાવો અથવા પેહલા Register કરો.');
+        alert('❌ ખોટો Mobile Number/Username અથવા Password! કૃપા કરીને સાચી વિગતો નાખો અથવા પહેલા Register કરો.');
     }
 }
 
